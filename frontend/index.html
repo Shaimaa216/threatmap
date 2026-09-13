@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ThreatMap — IP Threat Intelligence</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<div class="app-shell">
+<aside class="sidebar">
+  <div class="brand"><div class="brand-mark">TM</div><div><strong>ThreatMap</strong><span>Security Intelligence</span></div></div>
+  <nav>
+    <a href="#dashboard" data-page="dashboard" class="active">Dashboard</a>
+    <a href="#analyzer" data-page="analyzer">IP Analyzer</a>
+    <a href="#bulk" data-page="bulk">Bulk Analysis</a>
+    <a href="#history" data-page="history">History</a>
+    <a href="#about" data-page="about">About</a>
+  </nav>
+  <div class="sidebar-note"><span class="dot"></span> IP2Location.io connected</div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <div><span class="eyebrow">NETWORK INTELLIGENCE</span><h1 id="page-title">Dashboard</h1></div>
+  <a class="github" href="https://github.com/Shaimaa216/threatmap" target="_blank">GitHub ↗</a>
+</header>
+
+<section id="page-dashboard" class="page active">
+  <div class="hero">
+    <div><span class="eyebrow">TURN IP ADDRESSES INTO ACTIONABLE SECURITY INSIGHTS</span><h2>Analyze an IP. Understand the risk.</h2><p>IP2Location-powered geolocation, network intelligence and proxy/threat signals in one place.</p></div>
+    <form id="quick-form" class="search-form"><input id="quick-ip" placeholder="Enter IPv4 or IPv6…" autocomplete="off"><button>Analyze IP</button></form>
+  </div>
+  <div class="stats">
+    <div class="stat"><span>Total analyzed</span><strong id="stat-total">0</strong></div>
+    <div class="stat high"><span>High risk</span><strong id="stat-high">0</strong></div>
+    <div class="stat medium"><span>Medium risk</span><strong id="stat-medium">0</strong></div>
+    <div class="stat low"><span>Low risk</span><strong id="stat-low">0</strong></div>
+  </div>
+  <div class="grid-2">
+    <div class="card"><div class="card-head"><h3>Risk distribution</h3></div><canvas id="risk-chart"></canvas></div>
+    <div class="card"><div class="card-head"><h3>Recent activity</h3><a href="#history">View all</a></div><div id="recent-list" class="activity"></div></div>
+  </div>
+</section>
+
+<section id="page-analyzer" class="page">
+  <div class="section-head"><div><span class="eyebrow">IP ANALYZER</span><h2>IP Threat Intelligence</h2></div></div>
+  <form id="analyze-form" class="search-form large"><input id="ip-input" placeholder="8.8.8.8 or 2001:4860:4860::8888" autocomplete="off"><button>Analyze IP</button></form>
+  <div id="error-box" class="alert hidden"></div>
+  <div id="result" class="hidden">
+    <div class="risk-banner card">
+      <div><span class="eyebrow">THREATMAP RISK SCORE</span><div class="risk-score"><strong id="risk-score">0</strong><span>/100</span><b id="risk-level">Low Risk</b></div></div>
+      <div id="risk-reasons" class="reasons"></div>
+    </div>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><h3>Security overview</h3></div><div class="security-grid">
+        <div><span>Proxy detected</span><strong id="proxy"></strong></div><div><span>Proxy type</span><strong id="proxy-type"></strong></div>
+        <div><span>VPN</span><strong id="vpn"></strong></div><div><span>Tor</span><strong id="tor"></strong></div>
+        <div><span>Threat</span><strong id="threat"></strong></div><div><span>Usage type</span><strong id="usage"></strong></div>
+      </div></div>
+      <div class="card"><div class="card-head"><h3>Location</h3></div><div class="location"><div id="location-text"></div><div id="map"></div></div></div>
+    </div>
+    <div class="card"><div class="card-head"><h3>Network intelligence</h3></div><div id="network-grid" class="info-grid"></div></div>
+  </div>
+</section>
+
+<section id="page-bulk" class="page">
+  <div class="section-head"><div><span class="eyebrow">BULK ANALYSIS</span><h2>Analyze multiple IPs</h2><p>Upload a CSV with a required <code>ip</code> column. Up to 100 unique IPs per upload.</p></div></div>
+  <div class="card upload-card"><label class="dropzone"><input type="file" id="csv-file" accept=".csv"><span class="upload-icon">⇧</span><strong>Choose CSV file</strong><small>Example: ip / 8.8.8.8 / 1.1.1.1</small></label><button id="bulk-btn" class="button">Run bulk analysis</button></div>
+  <div id="bulk-error" class="alert hidden"></div>
+  <div id="bulk-wrap" class="card hidden"><div class="table-wrap"><table><thead><tr><th>IP</th><th>Country</th><th>City</th><th>ISP</th><th>ASN</th><th>Proxy</th><th>Score</th><th>Level</th></tr></thead><tbody id="bulk-body"></tbody></table></div><button id="download-bulk" class="button secondary">Download CSV</button></div>
+</section>
+
+<section id="page-history" class="page">
+  <div class="section-head"><div><span class="eyebrow">ACTIVITY</span><h2>Analysis history</h2></div><div class="actions"><button id="download-history" class="button secondary">Export CSV</button><button id="clear-history" class="button danger">Clear history</button></div></div>
+  <div class="card"><div class="table-wrap"><table><thead><tr><th>IP</th><th>Time</th><th>Country</th><th>City</th><th>ISP</th><th>ASN</th><th>Score</th><th>Level</th></tr></thead><tbody id="history-body"></tbody></table></div></div>
+</section>
+
+<section id="page-about" class="page">
+  <div class="card about"><span class="eyebrow">ABOUT THREATMAP</span><h2>Intelligent IP Threat Intelligence & Network Analytics Platform</h2><p>ThreatMap turns IP addresses into understandable security context using the official IP2Location.io API as its core intelligence source.</p><div class="grid-2"><div><h3>Core data</h3><p>Geolocation, ISP, ASN, AS information, domain, usage type and proxy/security indicators returned by IP2Location.io.</p></div><div><h3>Risk methodology</h3><p>The ThreatMap Risk Score is an application-level heuristic. It is not a definitive statement that an IP is malicious.</p></div></div><h3>Open source</h3><p>MIT licensed. Contributions and improvements are welcome.</p></div>
+</section>
+<footer>ThreatMap · IP2Location-powered · For security analysis and research</footer>
+</main>
+</div>
+<div id="toast" class="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>
